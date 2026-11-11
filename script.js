@@ -93,10 +93,10 @@ inquiryForm?.addEventListener('submit', (event) => {
     'Project details:',
     message,
   ].filter(Boolean).join('\n');
-  const mailto = `mailto:hello@eliasoft.co.zw?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const mailto = `mailto:musamukahlera@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   if (formStatus) {
-    formStatus.innerHTML = 'Your inquiry is ready in your email app. If it did not open, <a href="mailto:hello@eliasoft.co.zw">email hello@eliasoft.co.zw</a> with your project details.';
+    formStatus.innerHTML = 'Your inquiry is ready in your email app. If it did not open, <a href="mailto:musamukahlera@gmail.com">email musamukahlera@gmail.com</a> with your project details.';
   }
   window.location.href = mailto;
 });

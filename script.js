@@ -19,15 +19,11 @@ menuButton?.addEventListener('click', () => {
 });
 
 mainNav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
-
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeMenu();
 });
-
 document.addEventListener('click', (event) => {
-  if (mainNav?.classList.contains('open') && !mainNav.contains(event.target) && !menuButton?.contains(event.target)) {
-    closeMenu();
-  }
+  if (mainNav?.classList.contains('open') && !mainNav.contains(event.target) && !menuButton?.contains(event.target)) closeMenu();
 });
 
 const year = document.querySelector('#year');
@@ -38,10 +34,9 @@ function updateScrollUI() {
   const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0;
   if (progressBar) progressBar.style.width = `${Math.min(progress, 100)}%`;
-  floatingCta?.classList.toggle('is-visible', window.scrollY > 420 && !contactSection?.classList.contains('is-active'));
+  floatingCta?.classList.toggle('is-visible', window.scrollY > 450 && !contactSection?.classList.contains('is-active'));
   scrollTicking = false;
 }
-
 window.addEventListener('scroll', () => {
   if (!scrollTicking) {
     window.requestAnimationFrame(updateScrollUI);
@@ -50,19 +45,18 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 updateScrollUI();
 
+const revealTargets = '.featured-system, .system-card, .service-card, .about-visual, .about-copy, .approach-step, .contact-form';
 if ('IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-revealed');
-        observer.unobserve(entry.target);
-      }
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-revealed');
+      observer.unobserve(entry.target);
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -20px 0px' });
-
-  document.querySelectorAll('.service-card, .values-row > div, .process-step, .faq-item, .product-copy, .product-visual, .contact-form').forEach((element, index) => {
+  }, { threshold: 0.12, rootMargin: '0px 0px -18px 0px' });
+  document.querySelectorAll(revealTargets).forEach((element, index) => {
     element.classList.add('reveal');
-    element.style.transitionDelay = `${(index % 4) * 65}ms`;
+    element.style.transitionDelay = `${(index % 4) * 60}ms`;
     revealObserver.observe(element);
   });
 
@@ -74,9 +68,7 @@ if ('IntersectionObserver' in window) {
     contactObserver.observe(contactSection);
   }
 } else {
-  document.querySelectorAll('.service-card, .values-row > div, .process-step, .faq-item, .product-copy, .product-visual, .contact-form').forEach((element) => {
-    element.classList.add('is-revealed');
-  });
+  document.querySelectorAll(revealTargets).forEach((element) => element.classList.add('is-revealed'));
 }
 
 const inquiryForm = document.querySelector('#inquiry-form');
@@ -96,7 +88,7 @@ inquiryForm?.addEventListener('submit', (event) => {
     `Name: ${name}`,
     `Email: ${email}`,
     organization ? `Company or school: ${organization}` : '',
-    `Project type: ${project}`,
+    `Interested in: ${project}`,
     '',
     'Project details:',
     message,
@@ -104,7 +96,7 @@ inquiryForm?.addEventListener('submit', (event) => {
   const mailto = `mailto:hello@eliasoft.co.zw?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   if (formStatus) {
-    formStatus.innerHTML = 'Your inquiry is ready in your email app. If it did not open, <a href="mailto:hello@eliasoft.co.zw">email hello@eliasoft.co.zw</a> and include your project details.';
+    formStatus.innerHTML = 'Your inquiry is ready in your email app. If it did not open, <a href="mailto:hello@eliasoft.co.zw">email hello@eliasoft.co.zw</a> with your project details.';
   }
   window.location.href = mailto;
 });

@@ -45,7 +45,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 updateScrollUI();
 
-const revealTargets = '.featured-system, .system-card, .service-card, .about-visual, .about-copy, .approach-step, .contact-form';
+const revealTargets = '.featured-system, .solution-card, .service-card, .impact-points article, .about-media, .about-copy, .approach-steps article, .industry-card, .capability-list article, .faq-list details, .contact-form';
 if ('IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
@@ -71,32 +71,59 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll(revealTargets).forEach((element) => element.classList.add('is-revealed'));
 }
 
+const filterButtons = document.querySelectorAll('.filter-chip');
+const solutionItems = document.querySelectorAll('.solution-item');
+filterButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const selectedFilter = button.dataset.filter;
+    filterButtons.forEach((chip) => {
+      const isActive = chip === button;
+      chip.classList.toggle('is-active', isActive);
+      chip.setAttribute('aria-pressed', String(isActive));
+    });
+    solutionItems.forEach((item) => {
+      item.classList.toggle('is-filtered-out', selectedFilter !== 'all' && item.dataset.category !== selectedFilter);
+    });
+  });
+});
+
 const inquiryForm = document.querySelector('#inquiry-form');
 const formStatus = document.querySelector('#form-status');
 inquiryForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!inquiryForm.reportValidity()) return;
-
-  const fields = new FormData(inquiryForm);
-  const name = String(fields.get('name') || '').trim();
-  const email = String(fields.get('email') || '').trim();
-  const organization = String(fields.get('organization') || '').trim();
-  const project = String(fields.get('project') || '').trim();
-  const message = String(fields.get('message') || '').trim();
-  const subject = `Project inquiry: ${project}`;
-  const body = [
-    `Name: ${name}`,
-    `Email: ${email}`,
-    organization ? `Company or school: ${organization}` : '',
-    `Interested in: ${project}`,
-    '',
-    'Project details:',
-    message,
-  ].filter(Boolean).join('\n');
-  const mailto = `mailto:musamukahlera@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  if (formStatus) {
-    formStatus.innerHTML = 'Your inquiry is ready in your email app. If it did not open, <a href="mailto:musamukahlera@gmail.com">email musamukahlera@gmail.com</a> with your project details.';
+  const submitButton = inquiryForm.querySelector('button[type="submit"]');
+  const originalButtonText = submitButton?.textContent.trim() || 'Send project inquiry';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending inquiry…';
   }
-  window.location.href = mailto;
+  if (formStatus) {
+    formStatus.classList.remove('is-error');
+    formStatus.textContent = 'Sending your message to Eliasoft…';
+  }
+
+  fetch(inquiryForm.action, {
+    method: 'POST',
+    body: new FormData(inquiryForm),
+    headers: { Accept: 'application/json' },
+  })
+    .then(async (response) => {
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Your message could not be sent.');
+      if (formStatus) formStatus.textContent = result.message;
+      inquiryForm.reset();
+    })
+    .catch((error) => {
+      if (formStatus) {
+        formStatus.classList.add('is-error');
+        formStatus.textContent = error.message || 'We could not send your message. Please email musamukahlera@gmail.com.';
+      }
+    })
+    .finally(() => {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
+    });
 });

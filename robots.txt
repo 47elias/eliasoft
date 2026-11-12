@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eliasoft.elias.co.zw/sitemap.xml
